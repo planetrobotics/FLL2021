@@ -1,0 +1,57 @@
+import cv2
+from PIL import Image
+from PIL import ImageTk
+import threading
+import tkinter as tk
+from ObjectFollowing import *
+
+
+
+def button1_clicked():
+    thread = threading.Thread(target=videoLoop, args=())
+    thread.start()
+
+def button2_clicked():
+    thread = threading.Thread(target=destroy, args=())
+    thread.start()
+
+def destroy(panel):
+    panel.destroy()
+
+def videoLoop(mirror=False):
+    drone.streamon()
+    No=0
+    # cap = cv2.VideoCapture(No)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+    frame_read = drone.get_frame_read()
+    myFrame = frame_read.frame
+    img = cv2.resize(myFrame, (800, 600))
+    imgContour = img.copy()
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    while True:
+        ret, to_draw =  img #cap.read()
+        if mirror is True:
+            to_draw = to_draw[:,::-1]
+
+        image = img  #cv2.cvtColor(to_draw, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = ImageTk.PhotoImage(image)
+        panel = tk.Label(image=image, compound="top")
+        panel.image = image
+        panel.place(x=50, y=50)
+
+    return panel
+
+
+root = tk.Tk()
+root.geometry("1920x1080+0+0")
+
+button1 = tk.Button(root, text="start", bg="#fff", font=("",50), command=button1_clicked)
+button1.place(x=1000, y=100, width=400, height=250)
+
+button2 = tk.Button(root, text="stop", bg="#fff", font=("",50), command=button2_clicked)
+button2.place(x=1000, y=360, width=400, height=250)
+
+root.mainloop()
