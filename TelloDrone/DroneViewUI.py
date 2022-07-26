@@ -89,13 +89,13 @@ class DroneViewUI:
 
         forwardImage = ImageTk.PhotoImage(Image.open('Resources/forward.png').resize((60, 70)))
         forwardButton = Button(self.root, image=forwardImage, borderwidth=0)
-        forwardButton.place(x=665, y=105)
+        forwardButton.place(x=700, y=105)
         forwardButton.bind("<ButtonPress>", self.forward_clicked)
         forwardButton.bind("<ButtonRelease>", self.forward_release)
 
         reverseImage = ImageTk.PhotoImage(Image.open('Resources/backward.png').resize((60, 80)))
         reverseButton = Button(self.root, image=reverseImage, borderwidth=0)
-        reverseButton.place(x=665, y=250)
+        reverseButton.place(x=700, y=250)
         reverseButton.bind("<ButtonPress>", self.back_clicked)
         reverseButton.bind("<ButtonRelease>", self.back_release)
 
