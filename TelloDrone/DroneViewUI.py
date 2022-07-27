@@ -17,8 +17,8 @@ class DroneViewUI:
         # root.attributes("-fullscreen", True)
         root.title("DroneView Driver Assist")
         self.width = width
-
         self.root = root
+        self.followObject = False
 
         # Add image file
         bg = ImageTk.PhotoImage(Image.open('Resources/background.png').resize((width, height)))
@@ -27,17 +27,12 @@ class DroneViewUI:
         label1 = Label(root, image=bg)
         label1.place(x=0, y=0)
 
-
-
         self.batteryImage = {
             100 : ImageTk.PhotoImage(Image.open('Resources/battery_full.png').resize((40, 24))),
             75 : ImageTk.PhotoImage(Image.open('Resources/battery_75.png').resize((40, 24))),
             50 : ImageTk.PhotoImage(Image.open('Resources/battery_50.png').resize((40, 24))),
             25: ImageTk.PhotoImage(Image.open('Resources/battery_25.png').resize((40, 24)))
         }
-
-
-
 
         self.wifiImage = {
             "OK" : ImageTk.PhotoImage(Image.open('Resources/wifi.png').resize((32, 32))),
@@ -107,7 +102,7 @@ class DroneViewUI:
         self.panel.image = self.batteryImage[50]
         self.panel.place(x=0, y=5)
 
-        self.assistButton = Button(self.root, image=self.driverAssistImage["start"], borderwidth=0)
+        self.assistButton = Button(self.root, image=self.driverAssistImage["start"], borderwidth=0, command=self.assist)
         self.assistButton.place(x=718, y=360)
 
         infoImage = Image.open('Resources/info.png')
@@ -130,6 +125,15 @@ class DroneViewUI:
         root.protocol("WM_DELETE_WINDOW", self.onClose)
         root.mainloop()
 
+
+    def assist(self):
+        if self.followObject:
+            self.followObject = False
+        else:
+            self.followObject = True
+
+    def objectFollow(self):
+        return self.followObject
 
     def onInfoClose(self):
         self.newWindow.destroy()

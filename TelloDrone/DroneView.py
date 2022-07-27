@@ -5,6 +5,7 @@ from djitellopy import Tello
 from DroneViewUI import DroneViewUI
 from PIL import Image
 from PIL import ImageTk
+from pidmath import droneCalculator
 
 if __name__ == '__main__':
 
@@ -13,6 +14,12 @@ if __name__ == '__main__':
     drone.connect()
     drone.streamoff()
     drone.streamon()
+
+    width = 720
+    height = 480
+    centerScreen = [width / 2, height / 2]
+    area = 12000
+    droneCal = droneCalculator(centerScreen, area)
 
     connected = True
     wifi = True
@@ -87,6 +94,9 @@ if __name__ == '__main__':
                     battery = drone.get_battery()
                     droneUI.setBattery(battery)
                     droneUI.setWifi(wifi)
+                    forward_back = 0
+                    up_down = 0
+                    right_left = 0
                     # drone.send_keepalive()
                     if battery < 40:
                         print("Battery too low... change battery")
@@ -96,7 +106,15 @@ if __name__ == '__main__':
                         try:
                             image = drone.get_frame_read().frame
                             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                            image = cv2.resize(image, (720, 480))
+                            image = cv2.resize(image, (width, height))
+
+                            if droneUI.objectFollow():
+                                droneMovement, image = droneCal.getDroneVelocity(image)
+                                if droneMovement is not None and len(droneMovement) == 3:
+                                    right_left, up_down, forward_back = droneMovement
+                            else:
+                                forward_back, up_down, right_left = droneUI.getDroneCommand()
+
                             image = Image.fromarray(image)
                             img = ImageTk.PhotoImage(image)
                             image.close()
@@ -105,7 +123,7 @@ if __name__ == '__main__':
                             print("Not able to get image from drone camera, will retry again...")
                             pass
 
-                        forward_back, up_down, right_left = droneUI.getDroneCommand()
+
                         drone.send_rc_control(0, forward_back, up_down, right_left)
                 except:
                     connected = False
