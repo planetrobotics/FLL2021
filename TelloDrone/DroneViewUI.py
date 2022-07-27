@@ -89,13 +89,13 @@ class DroneViewUI:
 
         forwardImage = ImageTk.PhotoImage(Image.open('Resources/forward.png').resize((60, 70)))
         forwardButton = Button(self.root, image=forwardImage, borderwidth=0)
-        forwardButton.place(x=700, y=105)
+        forwardButton.place(x=720, y=105)
         forwardButton.bind("<ButtonPress>", self.forward_clicked)
         forwardButton.bind("<ButtonRelease>", self.forward_release)
 
         reverseImage = ImageTk.PhotoImage(Image.open('Resources/backward.png').resize((60, 80)))
         reverseButton = Button(self.root, image=reverseImage, borderwidth=0)
-        reverseButton.place(x=700, y=250)
+        reverseButton.place(x=720, y=250)
         reverseButton.bind("<ButtonPress>", self.back_clicked)
         reverseButton.bind("<ButtonRelease>", self.back_release)
 
@@ -110,36 +110,13 @@ class DroneViewUI:
         self.assistButton = Button(self.root, image=self.driverAssistImage["start"], borderwidth=0)
         self.assistButton.place(x=718, y=360)
 
-        def openNewWindow():
-            # Toplevel object which will
-            # be treated as a new window
-            newWindow = Toplevel(root)
-
-            # sets the title of the
-            # Toplevel widget
-            newWindow.title("Help")
-
-            # sets the geometry of toplevel
-            newWindow.geometry("500x200")
-
-            # A Label widget to show in toplevel
-            Label(newWindow,
-                  text="" "\nThere are 2 ways to use DroneView:"
-                       "\n\n-Press the manual control buttons to manually move the drone\n \n - Press Driver Assist to make the drone automatically follow the truck\n\n ").pack()
-
-
-
-
         infoImage = Image.open('Resources/info.png')
         infoImage = infoImage.resize((32, 32))
         infoImage = ImageTk.PhotoImage(infoImage)
-        info = Button(self.root, image=infoImage, compound="top",command=openNewWindow)
+        info = Button(self.root, image=infoImage, compound="top",command=self.openNewWindow)
         info.place(x=(width -75), y=5)
 
-
-
-
-
+        self.wifiAvailable = True
         self.wifi = Label(self.root, image=self.wifiImage["OK"], compound="top")
         self.wifi.place(x=(width - 115), y=5)
 
@@ -148,9 +125,38 @@ class DroneViewUI:
         self.batteryLevel = 100;
 
         self.launchThread = None
+        self.newWindow = None
 
         root.protocol("WM_DELETE_WINDOW", self.onClose)
         root.mainloop()
+
+
+    def onInfoClose(self):
+        self.newWindow.destroy()
+        self.newWindow = None
+
+    def openNewWindow(self):
+        # Toplevel object which will
+        # be treated as a new window
+        if self.newWindow == None:
+            self.newWindow = Toplevel(self.root)
+
+            self.newWindow.protocol("WM_DELETE_WINDOW", self.onInfoClose)
+
+            # sets the title of the
+            # Toplevel widget
+            self.newWindow.title("Help")
+
+            # sets the geometry of toplevel
+            self.newWindow.geometry("500x200")
+
+            # A Label widget to show in toplevel
+            Label(self.newWindow,
+                  text="" "\nThere are 2 ways to use DroneView:"
+                       "\n\n-Press the manual control buttons to manually move the drone\n \n - Press Driver Assist to make the drone automatically follow the truck\n\n ").pack()
+        else:
+            self.newWindow.destroy()
+            self.newWindow = None
 
 
     def getDroneCommand(self):
@@ -257,15 +263,17 @@ class DroneViewUI:
             self.battery.place(x=(self.width - 165), y=5)
 
     def setWifi(self, wifiLevel):
-        if self.wifi != None:
-            self.wifi.destroy()
+        if self.wifiAvailable != wifiLevel:
+            self.wifiAvailable = wifiLevel
+            if self.wifi != None:
+                self.wifi.destroy()
 
-        wifiAvailable = "OK"
-        if False == wifiLevel:
-            wifiAvailable = "KO"
+            wifiAvailable = "OK"
+            if False == wifiLevel:
+                wifiAvailable = "KO"
 
-        self.wifi = Label(self.root, image=self.wifiImage[wifiAvailable], compound="top")
-        self.wifi.place(x=(self.width - 115), y=5)
+            self.wifi = Label(self.root, image=self.wifiImage[wifiAvailable], compound="top")
+            self.wifi.place(x=(self.width - 115), y=5)
 
 
 if __name__ == '__main__':
